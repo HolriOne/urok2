@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок: НЕ с причастиями + повторение</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff; margin: 0; padding: 0; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .topbar {
+    width: 100%; padding: 16px 24px; background: rgba(15,23,42,0.9);
+    backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar h1 { margin: 0; font-size: 18px; color: #c7d2fe; }
+  .topbar .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .topbar .nav button {
+    padding: 8px 16px; border: none; border-radius: 8px;
+    background: rgba(255,255,255,0.08); color: #c7d2fe;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .topbar .nav button:hover { background: rgba(255,255,255,0.15); }
+  .topbar .nav button.active {
+    background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16;
+  }
+
+  .stage {
+    width: 100%; max-width: 820px; padding: 24px;
+    flex: 1;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); }
+                      to { opacity: 1; transform: translateY(0); } }
+
+  /* ======== МЕНЮ ======== */
+  .menu-hero {
+    text-align: center; padding: 40px 20px 30px;
+  }
+  .menu-hero h2 {
+    font-size: 30px; margin: 0 0 10px;
+    background: linear-gradient(90deg, #4ade80, #fbbf24, #60a5fa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .menu-hero p { color: #c7d2fe; font-size: 15px; margin: 0; }
+  .menu-cards {
+    display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px;
+  }
+  .menu-card {
+    background: rgba(255,255,255,0.06); border-radius: 16px;
+    padding: 22px; cursor: pointer; transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; gap: 18px;
+  }
+  .menu-card:hover {
+    background: rgba(255,255,255,0.12); transform: translateX(4px);
+    border-color: rgba(74,222,128,0.5);
+  }
+  .menu-card .icon { font-size: 40px; flex-shrink: 0; }
+  .menu-card .info { flex: 1; }
+  .menu-card .info h3 { margin: 0 0 4px; font-size: 18px; color: #fff; }
+  .menu-card .info p { margin: 0; font-size: 13px; color: #9ca3af; }
+  .menu-card .arrow { color: #4ade80; font-size: 24px; flex-shrink: 0; }
+
+  /* ======== ИГРЫ (общие стили) ======== */
+  .game-wrap {
+    background: rgba(255,255,255,0.05); padding: 24px; border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .game-title {
+    text-align: center; margin: 0 0 6px; font-size: 22px;
+  }
+  .game-sub {
+    text-align: center; color: #9ca3af; font-size: 13px; margin: 0 0 16px;
+  }
+  .stats {
+    display: flex; justify-content: space-between; margin: 16px 0;
+    font-size: 16px; padding: 12px 20px; border-radius: 10px;
+    background: rgba(0,0,0,0.25);
+  }
+  .stats b { color: #4ade80; }
+
+  .card-display {
+    background: rgba(0,0,0,0.3); padding: 26px 22px;
+    border-radius: 12px; font-size: 22px; text-align: center;
+    line-height: 1.5; min-height: 80px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .card-display.mono { font-family: 'Consolas', monospace; letter-spacing: 2px; }
+
+  .hint-box {
+    background: rgba(251,191,36,0.12); border-left: 4px solid #fbbf24;
+    padding: 12px 16px; border-radius: 8px; font-size: 14px;
+    color: #fcd34d; margin-top: 12px; display: none; text-align: left;
+    line-height: 1.5;
+  }
+  .hint-box.show { display: block; animation: fadeIn 0.3s ease; }
+  .hint-box b { color: #fbbf24; }
+
+  .btns { display: flex; gap: 10px; margin-top: 14px; }
+  button.choice {
+    flex: 1; padding: 16px; border: none; border-radius: 12px;
+    font-size: 15px; cursor: pointer; font-weight: 700; transition: all 0.2s;
+  }
+  button.choice:hover:not(:disabled) { transform: translateY(-2px); }
+  button.choice:disabled { opacity: 0.4; cursor: not-allowed; }
+  .b-green  { background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16; }
+  .b-yellow { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #422006; }
+  .b-red    { background: linear-gradient(135deg, #f87171, #ef4444); color: #fff; }
+  .b-blue   { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff; }
+  .b-violet { background: linear-gradient(135deg, #a78bfa, #8b5cf6); color: #fff; }
+
+  .extras { display: flex; gap: 10px; margin-top: 12px; }
+  button.hint-btn {
+    flex: 1; padding: 12px; border: none; border-radius: 10px;
+    background: rgba(251,191,36,0.85); color: #422006;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  button.hint-btn:hover:not(:disabled) { background: #fbbf24; }
+  button.hint-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.skip-btn {
+    flex: 1; padding: 12px; border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px; background: transparent; color: #c7d2fe;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  button.skip-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.5); }
+  button.skip-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .msg { min-height: 40px; margin-top: 12px; font-size: 15px; text-align: center; line-height: 1.5; }
+
+  .final {
+    padding: 28px; background: rgba(74,222,128,0.1);
+    border-radius: 12px; margin-top: 20px; text-align: center;
+  }
+  .final .big { font-size: 44px; color: #4ade80; font-weight: 800; margin: 8px 0; }
+  .final .stats-mini {
+    display: flex; justify-content: center; gap: 24px; margin-top: 12px;
+    font-size: 14px; color: #c7d2fe;
+  }
+  .final .actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .final .actions button {
+    padding: 12px 24px; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16;
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.1); color: #c7d2fe;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+  }
+  .btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); }
+
+  /* ======== РЕЗУЛЬТАТЫ ======== */
+  .results-panel {
+    background: rgba(255,255,255,0.06); border-radius: 16px;
+    padding: 24px; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .results-panel h2 {
+    margin: 0 0 20px; font-size: 20px; color: #c7d2fe;
+  }
+  .result-row {
+    display: grid; grid-template-columns: 1fr 120px 80px;
+    gap: 12px; align-items: center; padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row .topic {
+    font-size: 15px; display: flex; align-items: center; gap: 10px;
+  }
+  .result-row .topic .emoji { font-size: 22px; }
+  input[type="number"] {
+    width: 100%; padding: 10px; border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.3); color: #fff; font-size: 15px;
+    font-weight: 600; text-align: center;
+    transition: border-color 0.2s;
+  }
+  input[type="number"]:focus {
+    outline: none; border-color: #4ade80;
+    box-shadow: 0 0 0 3px rgba(74,222,128,0.2);
+  }
+  input[type="number"].error { border-color: #f87171; }
+  .pct-badge {
+    text-align: center; font-weight: 700; font-size: 15px;
+    padding: 6px 8px; border-radius: 8px; background: rgba(0,0,0,0.25);
+    color: #9ca3af;
+  }
+  .pct-badge.ok  { color: #4ade80; }
+  .pct-badge.mid { color: #fbbf24; }
+  .pct-badge.low { color: #93c5fd; }
+
+  .calc-buttons { display: flex; gap: 10px; margin-top: 20px; }
+  .calc-buttons button {
+    flex: 1; padding: 14px; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .calc-buttons .primary {
+    background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16;
+  }
+  .calc-buttons .secondary {
+    background: transparent; border: 1px solid rgba(255,255,255,0.2);
+    color: #c7d2fe;
+  }
+  .calc-buttons button:hover { transform: translateY(-2px); }
+
+  #resultOutput { display: none; margin-top: 24px; }
+  #resultOutput.show { display: block; animation: fadeIn 0.4s ease; }
+
+  .final-total {
+    text-align: center; padding: 26px;
+    background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(34,197,94,0.08));
+    border: 2px solid rgba(74,222,128,0.3);
+    border-radius: 16px; margin-bottom: 16px;
+  }
+  .final-total .label { color: #c7d2fe; font-size: 13px; letter-spacing: 1px; }
+  .final-total .big {
+    font-size: 48px; font-weight: 800; margin: 6px 0;
+    background: linear-gradient(90deg, #4ade80, #fbbf24);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .final-total .mark-line {
+    display: flex; justify-content: center; align-items: center;
+    gap: 12px; margin: 10px 0 6px; flex-wrap: wrap;
+  }
+  .final-total .mark-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 56px; height: 56px; border-radius: 50%;
+    font-size: 26px; font-weight: 800;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .mark-badge.m5 { background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16; }
+  .mark-badge.m4 { background: linear-gradient(135deg, #a3e635, #84cc16); color: #1a2e05; }
+  .mark-badge.m3 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #422006; }
+  .mark-badge.m2 { background: linear-gradient(135deg, #fb923c, #f97316); color: #431407; }
+  .final-total .mark-text {
+    font-size: 17px; font-weight: 600; color: #c7d2fe;
+  }
+  .final-total .pct-text { color: #c7d2fe; font-size: 14px; margin-top: 8px; }
+
+  .topic-result {
+    background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 10px; border-left: 4px solid #93c5fd;
+  }
+  .topic-result.good { border-left-color: #4ade80; }
+  .topic-result.mid  { border-left-color: #fbbf24; }
+  .topic-result.low  { border-left-color: #93c5fd; }
+  .topic-result .head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 15px; margin-bottom: 6px; gap: 10px; flex-wrap: wrap;
+  }
+  .topic-result .head .left { display: flex; align-items: center; gap: 10px; }
+  .topic-result .head .mini-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    font-size: 15px; font-weight: 800;
+  }
+  .mini-mark.m5 { background: #4ade80; color: #052e16; }
+  .mini-mark.m4 { background: #a3e635; color: #1a2e05; }
+  .mini-mark.m3 { background: #fbbf24; color: #422006; }
+  .mini-mark.m2 { background: #fb923c; color: #431407; }
+  .topic-result .head .score { font-weight: 700; color: #c7d2fe; font-size: 13px; }
+  .topic-result .comment { font-size: 13px; color: #c7d2fe; }
+  .topic-result .comment.advice {
+    margin-top: 6px; padding: 8px 12px;
+    background: rgba(147,197,253,0.15); border-radius: 8px;
+    border-left: 3px solid #93c5fd;
+  }
+  .topic-result .comment.praise {
+    margin-top: 6px; padding: 8px 12px;
+    background: rgba(74,222,128,0.15); border-radius: 8px;
+    border-left: 3px solid #4ade80;
+  }
+  .topic-result .comment.encourage {
+    margin-top: 6px; padding: 8px 12px;
+    background: rgba(251,191,36,0.12); border-radius: 8px;
+    border-left: 3px solid #fbbf24;
+  }
+
+  @media (max-width: 560px) {
+    .topbar { padding: 12px; }
+    .topbar h1 { font-size: 15px; }
+    .topbar .nav button { padding: 6px 10px; font-size: 12px; }
+    .stage { padding: 14px; }
+    .result-row { grid-template-columns: 1fr 80px 60px; gap: 8px; }
+    .card-display { font-size: 18px; padding: 20px 14px; }
+    .final-total .big { font-size: 38px; }
+    .final-total .mark-badge { width: 48px; height: 48px; font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+<div class="topbar">
+  <h1>📚 Урок: НЕ с причастиями</h1>
+  <div class="nav">
+    <button data-screen="menu" class="active" onclick="go('menu')">🏠 Меню</button>
+    <button data-screen="game1" onclick="go('game1')">1. НЕ</button>
+    <button data-screen="game2" onclick="go('game2')">2. Наречия</button>
+    <button data-screen="game3" onclick="go('game3')">3. Дееприч.</button>
+    <button data-screen="results" onclick="go('results')">📊 Результаты</button>
+  </div>
+</div>
+
+<div class="stage">
+
+<!-- МЕНЮ -->
+<div id="screen-menu" class="screen active">
+  <div class="menu-hero">
+    <h2>Привет! Выбери игру 🎮</h2>
+    <p>Проходи по порядку. Каждая игра — 120 очков.</p>
+  </div>
+  <div class="menu-cards">
+    <div class="menu-card" onclick="go('game1')">
+      <div class="icon">🚫</div>
+      <div class="info">
+        <h3>1. НЕ с причастиями</h3>
+        <p>Новая тема · 12 заданий · слитно/раздельно</p>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="menu-card" onclick="go('game2')">
+      <div class="icon">🧩</div>
+      <div class="info">
+        <h3>2. Наречия — повтор</h3>
+        <p>12 заданий · слитно / дефис / раздельно</p>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="menu-card" onclick="go('game3')">
+      <div class="icon">⚡</div>
+      <div class="info">
+        <h3>3. Деепричастия — повтор</h3>
+        <p>12 заданий · можно / нельзя</p>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="menu-card" onclick="go('results')">
+      <div class="icon">📊</div>
+      <div class="info">
+        <h3>Мои результаты</h3>
+        <p>Вписать очки и узнать оценку</p>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ИГРА 1 -->
+<div id="screen-game1" class="screen">
+  <div class="game-wrap">
+    <h2 class="game-title" style="color:#60a5fa">🚫 НЕ с причастиями</h2>
+    <p class="game-sub">Слитно или раздельно? 12 заданий × 10 = 120 очков.</p>
+    <div class="stats">
+      <span>Очки: <b id="g1-score">0</b> / 120</span>
+      <span>Задание: <b id="g1-level">1</b> / <b id="g1-total">0</b></span>
+    </div>
+    <div class="card-display" id="g1-word">—</div>
+    <div class="hint-box" id="g1-hint"></div>
+    <div class="btns" id="g1-btns">
+      <button class="choice b-green" onclick="g1ans('slitno')">СЛИТНО</button>
+      <button class="choice b-red" onclick="g1ans('razdel')">РАЗДЕЛЬНО</button>
+    </div>
+    <div class="extras" id="g1-extras">
+      <button class="hint-btn" id="g1-hintBtn" onclick="g1showHint()">💡 Подсказка</button>
+      <button class="skip-btn" id="g1-skipBtn" onclick="g1skip()">Пропустить ⏭</button>
+    </div>
+    <div class="msg" id="g1-msg"></div>
+    <div id="g1-final"></div>
+  </div>
+</div>
+
+<!-- ИГРА 2 -->
+<div id="screen-game2" class="screen">
+  <div class="game-wrap">
+    <h2 class="game-title" style="color:#a78bfa">🧩 Наречия — повтор</h2>
+    <p class="game-sub">Проверим ещё раз! 12 заданий × 10 = 120 очков.</p>
+    <div class="stats">
+      <span>Очки: <b id="g2-score">0</b> / 120</span>
+      <span>Задание: <b id="g2-level">1</b> / <b id="g2-total">0</b></span>
+    </div>
+    <div class="card-display mono" id="g2-word">—</div>
+    <div class="hint-box" id="g2-hint"></div>
+    <div class="btns" id="g2-btns">
+      <button class="choice b-green" onclick="g2ans('slitno')">СЛИТНО</button>
+      <button class="choice b-yellow" onclick="g2ans('defis')">ДЕФИС</button>
+      <button class="choice b-red" onclick="g2ans('razdel')">РАЗДЕЛЬНО</button>
+    </div>
+    <div class="extras" id="g2-extras">
+      <button class="hint-btn" id="g2-hintBtn" onclick="g2showHint()">💡 Подсказка</button>
+      <button class="skip-btn" id="g2-skipBtn" onclick="g2skip()">Пропустить ⏭</button>
+    </div>
+    <div class="msg" id="g2-msg"></div>
+    <div id="g2-final"></div>
+  </div>
+</div>
+
+<!-- ИГРА 3 -->
+<div id="screen-game3" class="screen">
+  <div class="game-wrap">
+    <h2 class="game-title" style="color:#4ade80">⚡ Деепричастие: можно или нельзя?</h2>
+    <p class="game-sub">Проверим ещё раз! 12 заданий × 10 = 120 очков.</p>
+    <div class="stats">
+      <span>Очки: <b id="g3-score">0</b> / 120</span>
+      <span>Задание: <b id="g3-level">1</b> / <b id="g3-total">0</b></span>
+    </div>
+    <div class="card-display" id="g3-card"></div>
+    <div class="hint-box" id="g3-hint"></div>
+    <div class="btns" id="g3-btns">
+      <button class="choice b-green" onclick="g3ans(true)">✅ Можно</button>
+      <button class="choice b-red" onclick="g3ans(false)">❌ Нельзя</button>
+    </div>
+    <div class="extras" id="g3-extras">
+      <button class="hint-btn" id="g3-hintBtn" onclick="g3showHint()">💡 Подсказка</button>
+      <button class="skip-btn" id="g3-skipBtn" onclick="g3skip()">Пропустить ⏭</button>
+    </div>
+    <div class="msg" id="g3-msg"></div>
+    <div id="g3-final"></div>
+  </div>
+</div>
+
+<!-- РЕЗУЛЬТАТЫ -->
+<div id="screen-results" class="screen">
+  <div class="results-panel">
+    <h2>📊 Мои результаты</h2>
+    <p style="color:#9ca3af;font-size:13px;margin-top:-10px;margin-bottom:20px">
+      Впиши очки из каждой игры (0–120) — увидишь оценку и что подтянуть.
+    </p>
+
+    <div class="result-row">
+      <div class="topic"><span class="emoji">🚫</span> НЕ с причастиями</div>
+      <input type="number" id="r1" min="0" max="120" placeholder="0–120">
+      <div class="pct-badge" id="rp1">—</div>
+    </div>
+    <div class="result-row">
+      <div class="topic"><span class="emoji">🧩</span> Наречия</div>
+      <input type="number" id="r2" min="0" max="120" placeholder="0–120">
+      <div class="pct-badge" id="rp2">—</div>
+    </div>
+    <div class="result-row">
+      <div class="topic"><span class="emoji">⚡</span> Деепричастия</div>
+      <input type="number" id="r3" min="0" max="120" placeholder="0–120">
+      <div class="pct-badge" id="rp3">—</div>
+    </div>
+
+    <div class="calc-buttons">
+      <button class="primary" onclick="calculate()">📊 Посчитать</button>
+      <button class="secondary" onclick="resetResults()">🔄 Очистить</button>
+    </div>
+
+    <div id="resultOutput">
+      <div class="final-total">
+        <div class="label">МОЙ РЕЗУЛЬТАТ</div>
+        <div class="big" id="totalScore">0 / 360</div>
+        <div class="mark-line">
+          <div class="mark-badge m5" id="totalMark">5</div>
+          <div class="mark-text" id="totalGrade">—</div>
+        </div>
+        <div class="pct-text" id="totalPct">—</div>
+      </div>
+      <div id="topicResults"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ========== НАВИГАЦИЯ ========== */
+function go(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.topbar .nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelector(`.topbar .nav button[data-screen="${name}"]`).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ========== ИГРА 1: НЕ С ПРИЧАСТИЯМИ ========== */
+const g1tasks = [
+  { w: "(не)прочитанная книга", ok: "slitno",
+    why: "Нет зависимого слова → слитно.",
+    hint: "Проверь: есть ли у причастия <b>зависимое слово</b>? Если нет и противопоставления нет — пиши слитно." },
+  { w: "(не)прочитанная мною книга", ok: "razdel",
+    why: "Есть зависимое слово «мною» → раздельно.",
+    hint: "Проверь: есть ли у причастия <b>зависимое слово</b>? Если есть — пиши раздельно." },
+  { w: "(не)законченная, а начатая работа", ok: "razdel",
+    why: "Есть противопоставление «а» → раздельно.",
+    hint: "Проверь: есть ли <b>противопоставление</b> с союзом «а» или «но»? Если есть — раздельно." },
+  { w: "(не)навидящий враг", ok: "slitno",
+    why: "Без НЕ не употребляется → слитно.",
+    hint: "Проверь: употребляется ли слово <b>без НЕ</b>? Если нет — пиши слитно." },
+  { w: "работа (не)закончена", ok: "razdel",
+    why: "Краткое причастие → раздельно.",
+    hint: "Проверь: это <b>полное или краткое</b> причастие? Краткие всегда с НЕ раздельно." },
+  { w: "(не)решённая задача", ok: "slitno",
+    why: "Нет зависимого слова → слитно.",
+    hint: "Проверь: есть ли у причастия <b>зависимое слово</b>? Если нет — слитно." },
+  { w: "(не)решённая мною задача", ok: "razdel",
+    why: "Есть зависимое слово «мною» → раздельно.",
+    hint: "Найди <b>зависимое слово</b> рядом с причастием. Оно есть? → раздельно." },
+  { w: "(не)годующий взгляд", ok: "slitno",
+    why: "Без НЕ не употребляется → слитно.",
+    hint: "Есть ли слово <b>без НЕ</b>? Проверь — если такого слова нет, пиши слитно." },
+  { w: "письмо (не)написано", ok: "razdel",
+    why: "Краткое причастие → раздельно.",
+    hint: "Определи форму причастия. <b>Краткая форма</b> — всегда с НЕ раздельно." },
+  { w: "(не)доумевающий ученик", ok: "slitno",
+    why: "Без НЕ не употребляется → слитно.",
+    hint: "Попробуй убрать НЕ. Получилось слово? Если нет — слитно." },
+  { w: "(не)просохшая, а сырая земля", ok: "razdel",
+    why: "Есть противопоставление «а» → раздельно.",
+    hint: "Ищи союз <b>«а» или «но»</b> рядом — это противопоставление, пиши раздельно." },
+  { w: "(не)выученный урок", ok: "slitno",
+    why: "Нет зависимого слова → слитно.",
+    hint: "Проверь наличие <b>зависимого слова</b> и <b>противопоставления</b>. Ничего нет? → слитно." }
+];
+
+let g1i = 0, g1score = 0, g1skipped = 0, g1locked = false;
+const PER = 10;
+document.getElementById('g1-total').textContent = g1tasks.length;
+
+function g1render() {
+  if (g1i >= g1tasks.length) {
+    document.getElementById('g1-word').style.display = 'none';
+    document.getElementById('g1-btns').style.display = 'none';
+    document.getElementById('g1-extras').style.display = 'none';
+    document.getElementById('g1-hint').classList.remove('show');
+    document.getElementById('g1-msg').textContent = '';
+    const max = g1tasks.length * PER;
+    const pct = Math.round(g1score / max * 100);
+    let grade = "Повторим ещё раз";
+    if (pct >= 90) grade = "Отлично! 🏆";
+    else if (pct >= 70) grade = "Хорошо 👍";
+    else if (pct >= 50) grade = "Удовлетворительно 🙂";
+    document.getElementById('g1-final').innerHTML = `
+      <div class="final">
+        <div>🏁 Игра окончена!</div>
+        <div class="big">${g1score} / ${max}</div>
+        <div>${pct}% — ${grade}</div>
+        <div class="stats-mini">
+          <span>✅ Верно: ${g1score / PER}</span>
+          <span>⏭ Пропущено: ${g1skipped}</span>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="g1fillResults()">📊 Внести в результаты</button>
+          <button class="btn-secondary" onclick="g1restart()">🔄 Ещё раз</button>
+        </div>
+      </div>`;
+    return;
+  }
+  document.getElementById('g1-word').textContent = g1tasks[g1i].w;
+  document.getElementById('g1-level').textContent = g1i + 1;
+  document.getElementById('g1-msg').textContent = '';
+  document.getElementById('g1-hint').classList.remove('show');
+  document.querySelectorAll('#g1-btns button').forEach(b => b.disabled = false);
+  document.getElementById('g1-hintBtn').disabled = false;
+  document.getElementById('g1-skipBtn').disabled = false;
+  g1locked = false;
+}
+
+function g1showHint() {
+  const box = document.getElementById('g1-hint');
+  box.innerHTML = "💡 " + g1tasks[g1i].hint;
+  box.classList.add('show');
+}
+
+function g1ans(choice) {
+  if (g1locked) return;
+  const t = g1tasks[g1i];
+  const m = document.getElementById('g1-msg');
+  document.querySelectorAll('#g1-btns button').forEach(b => b.disabled = true);
+  document.getElementById('g1-hintBtn').disabled = true;
+  document.getElementById('g1-skipBtn').disabled = true;
+  if (choice === t.ok) {
+    g1score += PER;
+    m.textContent = "✅ +" + PER + " очков! " + t.why;
+    m.style.color = "#4ade80";
+  } else {
+    const names = { slitno: "СЛИТНО", razdel: "РАЗДЕЛЬНО" };
+    m.textContent = "❌ Правильно: " + names[t.ok] + ". " + t.why;
+    m.style.color = "#f87171";
+  }
+  document.getElementById('g1-score').textContent = g1score;
+  g1i++;
+  g1locked = true;
+  setTimeout(g1render, 1800);
+}
+
+function g1skip() {
+  if (g1locked) return;
+  g1skipped++;
+  const m = document.getElementById('g1-msg');
+  m.textContent = "⏭ Пропущено. " + g1tasks[g1i].why;
+  m.style.color = "#fbbf24";
+  document.querySelectorAll('#g1-btns button').forEach(b => b.disabled = true);
+  document.getElementById('g1-hintBtn').disabled = true;
+  document.getElementById('g1-skipBtn').disabled = true;
+  g1i++;
+  g1locked = true;
+  setTimeout(g1render, 1800);
+}
+
+function g1fillResults() {
+  document.getElementById('r1').value = g1score;
+  updateBadges();
+  go('results');
+}
+
+function g1restart() {
+  g1i = 0; g1score = 0; g1skipped = 0;
+  document.getElementById('g1-score').textContent = 0;
+  document.getElementById('g1-final').innerHTML = '';
+  document.getElementById('g1-word').style.display = '';
+  document.getElementById('g1-btns').style.display = '';
+  document.getElementById('g1-extras').style.display = '';
+  g1render();
+}
+
+/* ========== ИГРА 2: НАРЕЧИЯ ========== */
+const g2tasks = [
+  { w: "(по)дружески", ok: "defis",
+    why: "ПО-...-И → дефис",
+    hint: "Вспомни формулу: ПО- + -ОМУ/-ЕМУ/-И → ?" },
+  { w: "(в)низ", ok: "slitno",
+    why: "Наречие от сущ. с приставкой → слитно",
+    hint: "Это наречие места с приставкой. Как пишутся такие наречия?" },
+  { w: "(где)то", ok: "defis",
+    why: "Частица -ТО → дефис",
+    hint: "Вспомни частицы: КОЕ-, -ТО, -ЛИБО, -НИБУДЬ. Как они пишутся?" },
+  { w: "(без)устали", ok: "razdel",
+    why: "БЕЗ + сущ. → раздельно",
+    hint: "Проверь: это наречие или предлог с существительным?" },
+  { w: "(в)пятых", ok: "defis",
+    why: "В-...-ЫХ → дефис",
+    hint: "Вспомни формулу: В-/ВО- + -ЫХ/-ИХ → ?" },
+  { w: "(не)брежно", ok: "slitno",
+    why: "Без НЕ не употребляется → слитно",
+    hint: "Проверь: есть ли слово «брежно» без НЕ? Если нет — пиши слитно." },
+  { w: "(мало)помалу", ok: "defis",
+    why: "Повтор корня → дефис",
+    hint: "Обрати внимание: слово состоит из повтора. Как пишутся повторы?" },
+  { w: "(по)волчьи", ok: "defis",
+    why: "ПО-...-И → дефис",
+    hint: "Вспомни: ПО- + -И в наречиях — это дефис." },
+  { w: "(в)право", ok: "slitno",
+    why: "Наречие с приставкой → слитно",
+    hint: "Это наречие места. Как пишутся наречия от сущ. с приставкой?" },
+  { w: "(с)ходу", ok: "razdel",
+    why: "Предлог + сущ. → раздельно",
+    hint: "Определи: это наречие или предлог с существительным?" },
+  { w: "(чуть)чуть", ok: "defis",
+    why: "Повтор → дефис",
+    hint: "Слово — повтор. Вспомни правило для повторов." },
+  { w: "(в)четвёртых", ok: "defis",
+    why: "В-...-ЫХ → дефис",
+    hint: "Вспомни формулу: В-/ВО- + -ЫХ/-ИХ → ?" }
+];
+
+let g2i = 0, g2score = 0, g2skipped = 0, g2locked = false;
+document.getElementById('g2-total').textContent = g2tasks.length;
+
+function g2render() {
+  if (g2i >= g2tasks.length) {
+    document.getElementById('g2-word').style.display = 'none';
+    document.getElementById('g2-btns').style.display = 'none';
+    document.getElementById('g2-extras').style.display = 'none';
+    document.getElementById('g2-hint').classList.remove('show');
+    document.getElementById('g2-msg').textContent = '';
+    const max = g2tasks.length * PER;
+    const pct = Math.round(g2score / max * 100);
+    let grade = "Повторим ещё раз";
+    if (pct >= 90) grade = "Отлично! 🏆";
+    else if (pct >= 70) grade = "Хорошо 👍";
+    else if (pct >= 50) grade = "Удовлетворительно 🙂";
+    document.getElementById('g2-final').innerHTML = `
+      <div class="final">
+        <div>🏁 Игра окончена!</div>
+        <div class="big">${g2score} / ${max}</div>
+        <div>${pct}% — ${grade}</div>
+        <div class="stats-mini">
+          <span>✅ Верно: ${g2score / PER}</span>
+          <span>⏭ Пропущено: ${g2skipped}</span>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="g2fillResults()">📊 Внести в результаты</button>
+          <button class="btn-secondary" onclick="g2restart()">🔄 Ещё раз</button>
+        </div>
+      </div>`;
+    return;
+  }
+  document.getElementById('g2-word').textContent = g2tasks[g2i].w;
+  document.getElementById('g2-level').textContent = g2i + 1;
+  document.getElementById('g2-msg').textContent = '';
+  document.getElementById('g2-hint').classList.remove('show');
+  document.querySelectorAll('#g2-btns button').forEach(b => b.disabled = false);
+  document.getElementById('g2-hintBtn').disabled = false;
+  document.getElementById('g2-skipBtn').disabled = false;
+  g2locked = false;
+}
+
+function g2showHint() {
+  const box = document.getElementById('g2-hint');
+  box.innerHTML = "💡 " + g2tasks[g2i].hint;
+  box.classList.add('show');
+}
+
+function g2ans(choice) {
+  if (g2locked) return;
+  const t = g2tasks[g2i];
+  const m = document.getElementById('g2-msg');
+  document.querySelectorAll('#g2-btns button').forEach(b => b.disabled = true);
+  document.getElementById('g2-hintBtn').disabled = true;
+  document.getElementById('g2-skipBtn').disabled = true;
+  if (choice === t.ok) {
+    g2score += PER;
+    m.textContent = "✅ +" + PER + " очков! " + t.why;
+    m.style.color = "#4ade80";
+  } else {
+    const names = { slitno: "СЛИТНО", defis: "ДЕФИС", razdel: "РАЗДЕЛЬНО" };
+    m.textContent = "❌ Правильно: " + names[t.ok] + ". " + t.why;
+    m.style.color = "#f87171";
+  }
+  document.getElementById('g2-score').textContent = g2score;
+  g2i++;
+  g2locked = true;
+  setTimeout(g2render, 1800);
+}
+
+function g2skip() {
+  if (g2locked) return;
+  g2skipped++;
+  const m = document.getElementById('g2-msg');
+  m.textContent = "⏭ Пропущено. " + g2tasks[g2i].why;
+  m.style.color = "#fbbf24";
+  document.querySelectorAll('#g2-btns button').forEach(b => b.disabled = true);
+  document.getElementById('g2-hintBtn').disabled = true;
+  document.getElementById('g2-skipBtn').disabled = true;
+  g2i++;
+  g2locked = true;
+  setTimeout(g2render, 1800);
+}
+
+function g2fillResults() {
+  document.getElementById('r2').value = g2score;
+  updateBadges();
+  go('results');
+}
+
+function g2restart() {
+  g2i = 0; g2score = 0; g2skipped = 0;
+  document.getElementById('g2-score').textContent = 0;
+  document.getElementById('g2-final').innerHTML = '';
+  document.getElementById('g2-word').style.display = '';
+  document.getElementById('g2-btns').style.display = '';
+  document.getElementById('g2-extras').style.display = '';
+  g2render();
+}
+
+/* ========== ИГРА 3: ДЕЕПРИЧАСТИЯ ========== */
+const g3tasks = [
+  { text: "Он шёл по парку, насвистывая мелодию.", ok: true,
+    why: "Одно лицо: он шёл и он насвистывал.",
+    hint: "Проверь: деепричастие и глагол относятся к <b>одному лицу</b>?" },
+  { text: "Подходя к дому, у меня зазвонил телефон.", ok: false,
+    why: "Телефон не может подходить.",
+    hint: "Определи, <b>кто выполняет</b> действие деепричастия и действие глагола. Это одно лицо?" },
+  { text: "Закончив работу, я пошёл домой.", ok: true,
+    why: "Одно лицо: я закончил и я пошёл.",
+    hint: "Проверь: <b>кто</b> закончил работу и <b>кто</b> пошёл домой?" },
+  { text: "Открывая окно, у меня упала ваза.", ok: false,
+    why: "Ваза не может открывать окно.",
+    hint: "Спроси: <b>кто открывал окно?</b> А <b>что упало?</b> Это один и тот же предмет?" },
+  { text: "Посмотрев фильм, мы обсудили его.", ok: true,
+    why: "Одно лицо: мы посмотрели и мы обсудили.",
+    hint: "Действие деепричастия и действие глагола — у одного лица?" },
+  { text: "Играя в футбол, у него сломалась нога.", ok: false,
+    why: "Нога не может играть.",
+    hint: "Задай два вопроса: <b>кто играл?</b> и <b>что сломалось?</b>" },
+  { text: "Услышав шум, я обернулся.", ok: true,
+    why: "Одно лицо: я услышал и я обернулся.",
+    hint: "Проверь: кто услышал? кто обернулся? Это один герой?" },
+  { text: "Собираясь в школу, у меня порвался рюкзак.", ok: false,
+    why: "Рюкзак не может собираться.",
+    hint: "Действие деепричастия и действие глагола выполняет <b>один предмет</b>?" },
+  { text: "Поливая цветы, бабушка напевала песню.", ok: true,
+    why: "Одно лицо: бабушка поливала и бабушка напевала.",
+    hint: "Кто поливал? кто напевал? Если это один герой — можно." },
+  { text: "Подъезжая к станции, у меня закружилась голова.", ok: false,
+    why: "Голова не может подъезжать.",
+    hint: "Спроси: <b>кто подъезжал?</b> А <b>что закружилось?</b> Это один предмет?" },
+  { text: "Читая книгу, я делал заметки.", ok: true,
+    why: "Одно лицо: я читал и я делал заметки.",
+    hint: "Оба действия выполняет один и тот же герой? Если да — можно." },
+  { text: "Слушая музыку, у меня разболелась голова.", ok: false,
+    why: "Голова не может слушать.",
+    hint: "Определи два действующих предмета: кто слушал и что болело." }
+];
+
+let g3i = 0, g3score = 0, g3skipped = 0, g3locked = false;
+document.getElementById('g3-total').textContent = g3tasks.length;
+
+function g3render() {
+  if (g3i >= g3tasks.length) {
+    document.getElementById('g3-card').style.display = 'none';
+    document.getElementById('g3-btns').style.display = 'none';
+    document.getElementById('g3-extras').style.display = 'none';
+    document.getElementById('g3-hint').classList.remove('show');
+    document.getElementById('g3-msg').textContent = '';
+    const max = g3tasks.length * PER;
+    const pct = Math.round(g3score / max * 100);
+    let grade = "Повторим ещё раз";
+    if (pct >= 90) grade = "Отлично! 🏆";
+    else if (pct >= 70) grade = "Хорошо 👍";
+    else if (pct >= 50) grade = "Удовлетворительно 🙂";
+    document.getElementById('g3-final').innerHTML = `
+      <div class="final">
+        <div>🏁 Игра окончена!</div>
+        <div class="big">${g3score} / ${max}</div>
+        <div>${pct}% — ${grade}</div>
+        <div class="stats-mini">
+          <span>✅ Верно: ${g3score / PER}</span>
+          <span>⏭ Пропущено: ${g3skipped}</span>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" onclick="g3fillResults()">📊 Внести в результаты</button>
+          <button class="btn-secondary" onclick="g3restart()">🔄 Ещё раз</button>
+        </div>
+      </div>`;
+    return;
+  }
+  document.getElementById('g3-card').textContent = g3tasks[g3i].text;
+  document.getElementById('g3-level').textContent = g3i + 1;
+  document.getElementById('g3-msg').textContent = '';
+  document.getElementById('g3-hint').classList.remove('show');
+  document.querySelectorAll('#g3-btns button').forEach(b => b.disabled = false);
+  document.getElementById('g3-hintBtn').disabled = false;
+  document.getElementById('g3-skipBtn').disabled = false;
+  g3locked = false;
+}
+
+function g3showHint() {
+  const box = document.getElementById('g3-hint');
+  box.innerHTML = "💡 " + g3tasks[g3i].hint;
+  box.classList.add('show');
+}
+
+function g3ans(choice) {
+  if (g3locked) return;
+  const t = g3tasks[g3i];
+  const m = document.getElementById('g3-msg');
+  document.querySelectorAll('#g3-btns button').forEach(b => b.disabled = true);
+  document.getElementById('g3-hintBtn').disabled = true;
+  document.getElementById('g3-skipBtn').disabled = true;
+  if (choice === t.ok) {
+    g3score += PER;
+    m.textContent = "✅ +" + PER + " очков! " + t.why;
+    m.style.color = "#4ade80";
+  } else {
+    m.textContent = "❌ " + t.why;
+    m.style.color = "#f87171";
+  }
+  document.getElementById('g3-score').textContent = g3score;
+  g3i++;
+  g3locked = true;
+  setTimeout(g3render, 1800);
+}
+
+function g3skip() {
+  if (g3locked) return;
+  g3skipped++;
+  const m = document.getElementById('g3-msg');
+  m.textContent = "⏭ Пропущено. " + g3tasks[g3i].why;
+  m.style.color = "#fbbf24";
+  document.querySelectorAll('#g3-btns button').forEach(b => b.disabled = true);
+  document.getElementById('g3-hintBtn').disabled = true;
+  document.getElementById('g3-skipBtn').disabled = true;
+  g3i++;
+  g3locked = true;
+  setTimeout(g3render, 1800);
+}
+
+function g3fillResults() {
+  document.getElementById('r3').value = g3score;
+  updateBadges();
+  go('results');
+}
+
+function g3restart() {
+  g3i = 0; g3score = 0; g3skipped = 0;
+  document.getElementById('g3-score').textContent = 0;
+  document.getElementById('g3-final').innerHTML = '';
+  document.getElementById('g3-card').style.display = '';
+  document.getElementById('g3-btns').style.display = '';
+  document.getElementById('g3-extras').style.display = '';
+  g3render();
+}
+
+/* ========== РЕЗУЛЬТАТЫ ========== */
+const MAX = 120;
+const RESULT_TOPICS = [
+  { id: 'r1', pct: 'rp1', emoji: '🚫', name: 'НЕ с причастиями',
+    advice: 'Помни: НЕ с причастием пишется РАЗДЕЛЬНО, если есть зависимое слово, противопоставление или это краткая форма. В остальных случаях — слитно.' },
+  { id: 'r2', pct: 'rp2', emoji: '🧩', name: 'Наречия',
+    advice: 'Три формулы: ПО-...-ОМУ/-ЕМУ/-И → дефис; ВО-...-ЫХ/-ИХ → дефис; КОЕ-, -ТО, -ЛИБО, -НИБУДЬ и повторы → дефис.' },
+  { id: 'r3', pct: 'rp3', emoji: '⚡', name: 'Деепричастия',
+    advice: '«Теорема одного лица»: действие деепричастия и глагола выполняет один и тот же герой.' }
+];
+
+RESULT_TOPICS.forEach(t => {
+  document.getElementById(t.id).addEventListener('input', updateBadges);
+});
+
+function updateBadges() {
+  RESULT_TOPICS.forEach(t => {
+    const raw = document.getElementById(t.id).value;
+    const badge = document.getElementById(t.pct);
+    if (!raw) {
+      badge.textContent = '—';
+      badge.className = 'pct-badge';
+      document.getElementById(t.id).classList.remove('error');
+      return;
+    }
+    const val = Number(raw);
+    if (val < 0 || val > MAX || isNaN(val)) {
+      badge.textContent = '!';
+      badge.className = 'pct-badge low';
+      document.getElementById(t.id).classList.add('error');
+      return;
+    }
+    document.getElementById(t.id).classList.remove('error');
+    const pct = Math.round(val / MAX * 100);
+    badge.textContent = pct + '%';
+    badge.className = 'pct-badge ' + (pct >= 85 ? 'ok' : pct >= 60 ? 'mid' : 'low');
+  });
+}
+
+function getGrade(pct) {
+  if (pct >= 90) return { mark: '5', cls: 'm5', phrase: '🌟 Блестяще! Ты настоящий знаток темы' };
+  if (pct >= 75) return { mark: '4', cls: 'm4', phrase: '✨ Отличный результат!' };
+  if (pct >= 60) return { mark: '3', cls: 'm3', phrase: '🌱 Хороший старт, ты на верном пути' };
+  if (pct >= 40) return { mark: '3', cls: 'm3', phrase: '🌿 Есть над чем поработать — и это нормально' };
+  return { mark: '2', cls: 'm2', phrase: '💡 Начало положено! Разберём вместе' };
+}
+
+function getTotalImpression(pct) {
+  if (pct >= 90) return '🌟 Ты справился блестяще!';
+  if (pct >= 75) return '✨ Отличная работа!';
+  if (pct >= 60) return '🌱 Хороший старт!';
+  if (pct >= 40) return '🌿 Продолжаем тренироваться';
+  return '💡 Мы только начинаем — всё впереди!';
+}
+
+function calculate() {
+  let total = 0, filled = 0;
+  const values = RESULT_TOPICS.map(t => {
+    const raw = document.getElementById(t.id).value;
+    const val = Number(raw);
+    if (raw === '' || isNaN(val) || val < 0 || val > MAX) {
+      document.getElementById(t.id).classList.add('error');
+      return 0;
+    }
+    document.getElementById(t.id).classList.remove('error');
+    filled++; total += val;
+    return val;
+  });
+
+  if (filled === 0) {
+    alert('Впиши хотя бы один результат.');
+    return;
+  }
+
+  const maxTotal = MAX * filled;
+  const totalPct = Math.round(total / maxTotal * 100);
+  const totalGrade = getGrade(totalPct);
+
+  document.getElementById('totalScore').textContent = total + ' / ' + maxTotal;
+  const mb = document.getElementById('totalMark');
+  mb.textContent = totalGrade.mark;
+  mb.className = 'mark-badge ' + totalGrade.cls;
+  document.getElementById('totalGrade').textContent = totalGrade.phrase;
+  document.getElementById('totalPct').textContent =
+    'Средний результат: ' + totalPct + '%' +
+    (filled < RESULT_TOPICS.length ? ' (заполнено ' + filled + ' из ' + RESULT_TOPICS.length + ')' : '');
+
+  const container = document.getElementById('topicResults');
+  container.innerHTML = '<h2 style="color:#c7d2fe;font-size:16px;margin:18px 0 12px">Мой разбор по темам</h2>';
+
+  let weakestIdx = -1, weakestPct = 101;
+  RESULT_TOPICS.forEach((t, i) => {
+    if (document.getElementById(t.id).value === '') return;
+    const pct = Math.round(values[i] / MAX * 100);
+    if (pct < weakestPct) { weakestPct = pct; weakestIdx = i; }
+  });
+
+  RESULT_TOPICS.forEach((t, i) => {
+    if (document.getElementById(t.id).value === '') return;
+    const val = values[i];
+    const pct = Math.round(val / MAX * 100);
+    const g = getGrade(pct);
+
+    const div = document.createElement('div');
+    div.className = 'topic-result ' + (pct >= 75 ? 'good' : pct >= 60 ? 'mid' : 'low');
+
+    let summary = '';
+    if (pct >= 85) {
+      summary = `<div class="comment praise">✅ Ты отлично разобрался! Так держать.</div>`;
+    } else if (pct >= 60) {
+      summary = `<div class="comment encourage">👍 Уже многое получается! Немного потренируемся — и будет идеально.</div>`;
+    } else {
+      summary = `<div class="comment advice">📚 <b>Это наш следующий шаг.</b> ${t.advice}</div>`;
+    }
+
+    div.innerHTML = `
+      <div class="head">
+        <div class="left">
+          <span class="mini-mark ${g.cls}">${g.mark}</span>
+          <span>${t.emoji} <b>${t.name}</b></span>
+        </div>
+        <span class="score">${val} / 120 · ${pct}%</span>
+      </div>
+      <div class="comment">${g.phrase}</div>
+      ${summary}
+    `;
+    container.appendChild(div);
+  });
+
+  if (weakestIdx >= 0 && weakestPct < 85) {
+    const tip = document.createElement('div');
+    tip.className = 'topic-result mid';
+    tip.style.marginTop = '14px';
+    tip.innerHTML = `
+      <div class="head"><b>🎯 План на следующий урок</b></div>
+      <div class="comment">
+        Начнём с темы «${RESULT_TOPICS[weakestIdx].name}» — разберём её ещё раз,
+        поиграем и обязательно поднимем результат. Ты справишься! 💪
+      </div>`;
+    container.appendChild(tip);
+  } else if (weakestIdx >= 0) {
+    const praise = document.createElement('div');
+    praise.className = 'topic-result good';
+    praise.style.marginTop = '14px';
+    praise.innerHTML = `
+      <div class="head"><b>🏅 Отличный результат по всем темам!</b></div>
+      <div class="comment">
+        Ты большой молодец. На следующем уроке попробуем задания посложнее.
+      </div>`;
+    container.appendChild(praise);
+  }
+
+  document.getElementById('resultOutput').classList.add('show');
+  document.getElementById('resultOutput').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetResults() {
+  RESULT_TOPICS.forEach(t => {
+    document.getElementById(t.id).value = '';
+    document.getElementById(t.id).classList.remove('error');
+  });
+  updateBadges();
+  document.getElementById('resultOutput').classList.remove('show');
+}
+
+/* Инициализация */
+g1render();
+g2render();
+g3render();
+updateBadges();
+</script>
+</body>
+</html>
